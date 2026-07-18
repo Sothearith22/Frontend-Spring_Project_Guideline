@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spring Boot Layered Starter — Clone & Build Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14213D;
+    --ink-soft:#4A5578;
+    --paper:#F5F6F2;
+    --panel:#FFFFFF;
+    --line:#DEDCD2;
+    --spring:#6DB33F;
+    --spring-dim:#E4F0D8;
+    --amber:#FFB100;
+    --amber-dim:#FFF0CC;
+    --code-bg:#101C33;
+    --code-text:#E6F0DC;
+    --code-dim:#7F8CB0;
+    --radius:10px;
+    --maxw:840px;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; margin:0; color:var(--ink); }
+  code, .mono{ font-family:'JetBrains Mono', monospace; }
+  a{ color:inherit; }
+
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+
+  /* ---------- topbar ---------- */
+  .topbar{ border-bottom:1px solid var(--line); padding:18px 0; }
+  .topbar__row{
+    display:flex; align-items:center; justify-content:space-between;
+    max-width:var(--maxw); margin:0 auto; padding:0 24px;
+  }
+  .brand{ display:flex; align-items:center; gap:9px; font-family:'Space Grotesk'; font-weight:600; font-size:15px; }
+  .brand__mark{ width:20px; height:20px; border-radius:5px; background:var(--spring); display:inline-block; position:relative; }
+  .brand__mark::after{ content:""; position:absolute; inset:5px; border-radius:2px; background:var(--paper); }
+  .topbar__meta{ font-family:'JetBrains Mono'; font-size:12px; color:var(--ink-soft); letter-spacing:.02em; }
+
+  /* ---------- hero ---------- */
+  .hero{ padding:64px 0 40px; }
+  .eyebrow{
+    font-family:'JetBrains Mono'; font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); margin-bottom:16px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{ content:""; width:16px; height:1px; background:var(--spring); display:inline-block; }
+  .hero h1{ font-size:42px; line-height:1.1; letter-spacing:-0.02em; max-width:13ch; }
+  .hero h1 em{ font-style:normal; color:var(--spring); }
+  .hero p{ margin:18px 0 0; font-size:17px; color:var(--ink-soft); max-width:54ch; }
+
+  /* ---------- terminal ---------- */
+  .terminal{
+    margin-top:34px; background:var(--code-bg); border-radius:var(--radius); overflow:hidden;
+    box-shadow:0 18px 40px -20px rgba(20,33,61,.45);
+  }
+  .terminal__bar{ display:flex; align-items:center; justify-content:space-between; padding:11px 16px; border-bottom:1px solid rgba(255,255,255,.08); }
+  .terminal__dots{ display:flex; gap:6px; }
+  .terminal__dots span{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .terminal__dots span:nth-child(1){ background:#FF6259; }
+  .terminal__dots span:nth-child(2){ background:#FFBD2E; }
+  .terminal__dots span:nth-child(3){ background:#6DB33F; }
+  .terminal__label{ font-family:'JetBrains Mono'; font-size:11.5px; color:var(--code-dim); }
+  .terminal__body{ padding:20px 20px 22px; font-family:'JetBrains Mono'; font-size:13.5px; color:var(--code-text); min-height:112px; }
+  .terminal__line{ white-space:pre; }
+  .terminal__prompt{ color:var(--spring); margin-right:8px; }
+  .cursor{ display:inline-block; width:7px; height:14px; background:var(--spring); vertical-align:-2px; animation:blink 1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .terminal__foot{ display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-top:1px solid rgba(255,255,255,.08); }
+  .terminal__note{ font-family:'JetBrains Mono'; font-size:11.5px; color:var(--code-dim); }
+  .copy-btn{
+    font-family:'JetBrains Mono'; font-size:12px; color:var(--code-text);
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    padding:7px 12px; border-radius:6px; cursor:pointer; transition:background .15s ease;
+  }
+  .copy-btn:hover{ background:rgba(255,255,255,.12); }
+  .copy-btn:focus-visible, button:focus-visible, .node:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  /* ---------- stack chips ---------- */
+  .stack{ display:flex; flex-wrap:wrap; gap:10px; margin-top:26px; }
+  .chip{ display:flex; align-items:center; gap:8px; border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:7px 14px 7px 10px; font-size:13px; }
+  .chip__tag{ font-family:'JetBrains Mono'; font-size:10.5px; color:var(--spring); background:var(--spring-dim); border-radius:5px; padding:2px 6px; }
+
+  /* ---------- section shell ---------- */
+  section{ padding:56px 0; border-top:1px solid var(--line); }
+  .section-head{ margin-bottom:32px; }
+  .section-head .eyebrow{ margin-bottom:10px; }
+  .section-head h2{ font-size:26px; letter-spacing:-0.01em; }
+  .section-head p{ margin:10px 0 0; color:var(--ink-soft); font-size:15px; max-width:56ch; }
+
+  /* ---------- steps ---------- */
+  .steps{ display:flex; flex-direction:column; }
+  .step{ display:grid; grid-template-columns:56px 1fr; gap:20px; padding:22px 0; border-top:1px solid var(--line); }
+  .step:first-child{ border-top:none; }
+  .step__num{ font-family:'Space Grotesk'; font-size:22px; font-weight:600; color:var(--line); }
+  .step h3{ font-size:16px; font-weight:600; }
+  .step p{ margin:6px 0 0; color:var(--ink-soft); font-size:14.5px; max-width:58ch; }
+  .step code.cmd{ display:inline-block; margin-top:10px; background:var(--ink); color:var(--spring-dim); padding:6px 10px; border-radius:6px; font-size:12.5px; }
+
+  /* ---------- structure / tree ---------- */
+  .structure{ display:grid; grid-template-columns:1fr; gap:0; }
+  .tree{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .tree__head{ display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--line); background:var(--paper); }
+  .tree__head span{ font-family:'JetBrains Mono'; font-size:12px; color:var(--ink-soft); }
+  .tree__body{ padding:10px 6px; }
+
+  .node{
+    display:flex; align-items:baseline; gap:10px; width:100%; text-align:left;
+    background:none; border:none; cursor:pointer;
+    padding:9px 12px; border-radius:6px; font-family:'JetBrains Mono'; font-size:13px; color:var(--ink);
+    transition:background .12s ease;
+  }
+  .node:hover{ background:var(--paper); }
+  .node[data-depth="1"]{ padding-left:34px; }
+  .node[data-depth="2"]{ padding-left:58px; }
+  .node__marker{ width:7px; height:7px; border-radius:2px; flex:none; background:var(--spring); }
+  .node--file .node__marker{ border-radius:50%; background:var(--amber); }
+  .node__name{ font-weight:500; }
+  .node__hint{ color:var(--ink-soft); font-size:11.5px; margin-left:2px; }
+  .node__chevron{ margin-left:auto; color:var(--ink-soft); font-size:11px; transition:transform .15s ease; flex:none; }
+  .node[aria-expanded="true"] .node__chevron{ transform:rotate(90deg); color:var(--spring); }
+
+  .detail{ overflow:hidden; max-height:0; transition:max-height .22s ease; margin:0 12px 0 34px; }
+  .detail[data-depth="1"]{ margin-left:58px; }
+  .detail.open{ max-height:140px; }
+  .detail__inner{ padding:2px 14px 14px; border-left:2px solid var(--spring-dim); font-family:'Inter'; font-size:13px; color:var(--ink-soft); }
+  .detail__add{ margin-top:6px; font-family:'JetBrains Mono'; font-size:11.5px; color:var(--ink); }
+  .detail__add b{ color:var(--spring); font-weight:600; }
+
+  /* ---------- flow strip ---------- */
+  .flow{ display:flex; align-items:center; flex-wrap:wrap; gap:0; margin-top:24px; font-family:'JetBrains Mono'; font-size:12.5px; }
+  .flow__step{ background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:8px 12px; color:var(--ink); }
+  .flow__arrow{ padding:0 10px; color:var(--spring); }
+
+  /* ---------- callout ---------- */
+  .callout{ margin-top:24px; background:var(--amber-dim); border:1px solid #F0D68A; border-radius:var(--radius); padding:18px 20px; }
+  .callout h3{ font-size:14.5px; font-weight:600; }
+  .callout p{ margin:6px 0 0; font-size:13.5px; color:var(--ink-soft); }
+
+  /* ---------- footer ---------- */
+  footer{ border-top:1px solid var(--line); padding:40px 0 56px; }
+  .footer__row{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+  .footer__cta{ font-family:'Space Grotesk'; font-weight:600; font-size:14px; color:var(--ink); background:var(--amber); border:none; border-radius:8px; padding:11px 18px; cursor:pointer; }
+  .footer__link{
+    font-family:'Space Grotesk'; font-weight:600; font-size:14px; color:var(--ink);
+    background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 18px;
+    text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:border-color .15s ease;
+  }
+  .footer__link:hover{ border-color:var(--spring); }
+  .footer__link svg{ flex:none; }
+  .footer__actions{ display:flex; gap:10px; flex-wrap:wrap; }
+  .footer__meta{ font-family:'JetBrains Mono'; font-size:11.5px; color:var(--ink-soft); }
+
+  @media (max-width:560px){
+    .hero h1{ font-size:30px; max-width:none; }
+    .step{ grid-template-columns:36px 1fr; gap:12px; }
+    .node[data-depth="1"]{ padding-left:24px; }
+    .node[data-depth="2"]{ padding-left:40px; }
+    .detail{ margin-left:24px; }
+    .detail[data-depth="1"]{ margin-left:40px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .cursor{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar__row">
+      <a class="brand" href="https://github.com/Sothearith22/Spring_Folder_Structre" target="_blank" rel="noopener noreferrer" style="text-decoration:none;"><span class="brand__mark"></span> Spring_Folder_Structre</a>
+      <div class="topbar__meta">clone guide · v1</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <section class="hero" style="border-top:none; padding-bottom:0;">
+      <div class="eyebrow">spring boot · maven · layered architecture</div>
+      <h1>Clone it.<br>Ship your own <em>API</em>.</h1>
+      <p>This is the package layout the starter ships with, and the order of moves to go from a fresh clone to your first working endpoint.</p>
+
+      <div class="terminal">
+        <div class="terminal__bar">
+          <div class="terminal__dots"><span></span><span></span><span></span></div>
+          <div class="terminal__label">cmd — Programming\Java Spring</div>
+        </div>
+        <div class="terminal__body" id="termBody" aria-live="polite"></div>
+        <div class="terminal__foot">
+          <span class="terminal__note">rename the folder/artifact before your first commit</span>
+          <button class="copy-btn" id="copyCmd" type="button">Copy command</button>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="chip"><span class="chip__tag">sb</span> Spring Boot</div>
+        <div class="chip"><span class="chip__tag">mvn</span> Maven</div>
+        <div class="chip"><span class="chip__tag">api</span> REST API</div>
+        <div class="chip"><span class="chip__tag">jpa</span> Layered + JPA</div>
+      </div>
+    </section>
+
+    <section id="steps">
+      <div class="section-head">
+        <div class="eyebrow">the build log</div>
+        <h2>Six moves to a running service</h2>
+        <p>Each one depends on the last, so run them in order the first time through.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step__num">01</div>
+          <div>
+            <h3>Clone the repo</h3>
+            <p>Pull the starter down under your own project name.</p>
+            <code class="cmd">git clone https://github.com/Sothearith22/Spring_Folder_Structre.git my-project</code>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">02</div>
+          <div>
+            <h3>Open it as a Maven project</h3>
+            <p>IntelliJ and VS Code with the Java extension pack both detect <code>pom.xml</code> automatically and resolve dependencies on open.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">03</div>
+          <div>
+            <h3>Configure application.properties</h3>
+            <p>Set your database URL, username, password, and server port before running anything that touches <code>repository/</code>.</p>
+            <code class="cmd">spring.datasource.url=jdbc:postgresql://localhost:5432/mydb</code>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">04</div>
+          <div>
+            <h3>Install dependencies and build</h3>
+            <p>Pulls everything listed in <code>pom.xml</code> and compiles the project.</p>
+            <code class="cmd">mvn clean install</code>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">05</div>
+          <div>
+            <h3>Run the app</h3>
+            <p>Or just run <code>DemoApplication.java</code> directly from your IDE.</p>
+            <code class="cmd">mvn spring-boot:run</code>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">06</div>
+          <div>
+            <h3>Build your first endpoint</h3>
+            <p>Add the pieces in this order — each layer only talks to the one next to it.</p>
+            <div class="flow">
+              <span class="flow__step">entity</span><span class="flow__arrow">→</span>
+              <span class="flow__step">repository</span><span class="flow__arrow">→</span>
+              <span class="flow__step">service</span><span class="flow__arrow">→</span>
+              <span class="flow__step">controller</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="structure">
+      <div class="section-head">
+        <div class="eyebrow">project structure</div>
+        <h2>What each package is for</h2>
+        <p>Tap any row — annotated with what belongs where and an example class to drop in first.</p>
+      </div>
+
+      <div class="structure">
+        <div class="tree">
+          <div class="tree__head"><span>src/main/java/.../demo/</span><span>10 entries</span></div>
+          <div class="tree__body" id="treeBody"></div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <h3>Rule of thumb</h3>
+        <p>DTOs cross the boundary in and out of your API — the <code>entity/</code> itself should never reach the controller directly. That's what <code>mapper/</code> is for.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <div class="wrap footer__row">
+      <div class="footer__meta">clone it, configure it, ship your first endpoint.</div>
+      <div class="footer__actions">
+        <a class="footer__link" href="https://github.com/Sothearith22/Spring_Folder_Structre" target="_blank" rel="noopener noreferrer">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          View on GitHub
+        </a>
+        <button class="footer__cta" id="copyCmd2" type="button">Copy clone command</button>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  const CLONE_CMD = "git clone https://github.com/Sothearith22/Spring_Folder_Structre.git my-project && cd my-project && mvn clean install && mvn spring-boot:run";
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  
+  const lines = [
+    { p: ">", t: "git clone https://github.com/Sothearith22/Spring_Folder_Structre.git my-project" },
+    { p: ">", t: "cd my-project" },
+    { p: ">", t: "mvn clean install" },
+    { p: ">", t: "mvn spring-boot:run" }
+  ];
+  const termBody = document.getElementById('termBody');
+
+  function renderStatic(){
+    termBody.innerHTML = lines.map(l =>
+      `<div class="terminal__line"><span class="terminal__prompt">${l.p}</span>${l.t}</div>`
+    ).join('') + `<span class="cursor"></span>`;
+  }
+
+  function typeAll(){
+    let li = 0;
+    function typeLine(){
+      if(li >= lines.length){
+        const c = document.createElement('span'); c.className = 'cursor';
+        termBody.appendChild(c);
+        return;
+      }
+      const row = document.createElement('div');
+      row.className = 'terminal__line';
+      const prompt = document.createElement('span');
+      prompt.className = 'terminal__prompt';
+      prompt.textContent = lines[li].p;
+      row.appendChild(prompt);
+      const textNode = document.createTextNode('');
+      row.appendChild(textNode);
+      termBody.appendChild(row);
+      const full = lines[li].t;
+      let ci = 0;
+      const iv = setInterval(() => {
+        textNode.textContent = full.slice(0, ci+1);
+        ci++;
+        if(ci >= full.length){
+          clearInterval(iv);
+          li++;
+          setTimeout(typeLine, 180);
+        }
+      }, 16);
+    }
+    typeLine();
+  }
+
+  if(reduceMotion){ renderStatic(); } else { typeAll(); }
+
+  function copyText(text, btn){
+    const done = () => {
+      const original = btn.textContent;
+      btn.textContent = "Copied";
+      setTimeout(() => btn.textContent = original, 1400);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
+  function fallbackCopy(text, cb){
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); cb(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  document.getElementById('copyCmd').addEventListener('click', (e) => copyText(CLONE_CMD, e.currentTarget));
+  document.getElementById('copyCmd2').addEventListener('click', (e) => copyText(CLONE_CMD, e.currentTarget));
+
+  const tree = [
+    { depth:0, name:"config/", hint:"beans & setup", desc:"App-level configuration beans — CORS rules, security config, Swagger/OpenAPI setup.", add:"WebConfig.java" },
+    { depth:0, name:"controller/", hint:"REST endpoints", desc:"Receives HTTP requests, validates input, delegates to service/, and returns a DTO.", add:"UserController.java" },
+    { depth:0, name:"dto/", hint:"request & response shapes" },
+    { depth:1, name:"request/", hint:"incoming JSON", desc:"One class per endpoint that accepts a body — shapes what the client is allowed to send.", add:"CreateUserRequest.java" },
+    { depth:1, name:"response/", hint:"outgoing JSON", desc:"Shapes what the client receives back — keeps entities from leaking straight into an API response.", add:"UserResponse.java" },
+    { depth:0, name:"entity/", hint:"@Entity classes", desc:"JPA-mapped classes, one per database table. This is your source of truth for the schema.", add:"User.java" },
+    { depth:0, name:"enums/", hint:"fixed constant sets", desc:"Roles, statuses, and types shared across layers — anywhere you'd otherwise hardcode a string.", add:"UserRole.java" },
+    { depth:0, name:"exception/", hint:"custom errors + handler", desc:"Custom exception classes plus a global @ControllerAdvice that turns them into clean JSON error responses.", add:"ResourceNotFoundException.java" },
+    { depth:0, name:"mapper/", hint:"entity ⇄ DTO", desc:"Converts entity to DTO and back, by hand or with MapStruct — keeps that logic out of the controller.", add:"UserMapper.java" },
+    { depth:0, name:"repository/", hint:"Spring Data JPA", desc:"One interface per entity — extend JpaRepository and Spring generates the implementation for you.", add:"UserRepository.java" },
+    { depth:0, name:"service/", hint:"business logic", desc:"The only layer allowed to talk to both repository/ and mapper/. Controllers should never call a repository directly.", add:"UserService.java" },
+    { depth:0, name:"DemoApplication.java", hint:"", file:true, desc:"The file with main() — boots the Spring application context.", add:"—" }
+  ];
+
+  const treeBody = document.getElementById('treeBody');
+  tree.forEach((item) => {
+    const hasDetail = !!item.desc;
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'node' + (item.file ? ' node--file' : '');
+    row.dataset.depth = item.depth;
+    if(hasDetail){ row.setAttribute('aria-expanded', 'false'); }
+    row.innerHTML = `
+      <span class="node__marker"></span>
+      <span class="node__name">${item.name}</span>
+      ${item.hint ? `<span class="node__hint"># ${item.hint}</span>` : ''}
+      ${hasDetail ? '<span class="node__chevron">›</span>' : ''}
+    `;
+    treeBody.appendChild(row);
+
+    if(hasDetail){
+      const detail = document.createElement('div');
+      detail.className = 'detail';
+      detail.dataset.depth = item.depth;
+      detail.innerHTML = `
+        <div class="detail__inner">
+          <p>${item.desc}</p>
+          <div class="detail__add">add here → <b>${item.add}</b></div>
+        </div>
+      `;
+      treeBody.appendChild(detail);
+
+      row.addEventListener('click', () => {
+        const isOpen = detail.classList.toggle('open');
+        row.setAttribute('aria-expanded', String(isOpen));
+      });
+    } else {
+      row.style.cursor = 'default';
+    }
+  });
+</script>
+
+</body>
+</html>
